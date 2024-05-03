@@ -4,14 +4,15 @@ import java.util.*;
  * Represents the board in an Aquarium game.
  */
 public class AquariumBoard extends GenericBoard{
-  private final ThinWall[][] hwalls;
-  private final ThinWall[][] vwalls;
-  private final NumFilledLine[] rowRuns;
-  private final NumFilledLine[] colRuns;
+  private final boolean[][] hwalls;
+  private final boolean[][] vwalls;
   private final AquariumCell[][] board;
   private static AquariumBoard instance;
+  protected int height;
+  protected int width;
+  protected final Scanner in = new Scanner(System.in);
 
-  public static void startGame(){
+  public static void main(String[] args) {
     new AquariumBoard();
   }
   
@@ -29,8 +30,8 @@ public class AquariumBoard extends GenericBoard{
         {a,b,b,b,b,a}
       };
     
-      ThinWall c = ThinWall.FILLED;
-      ThinWall d = ThinWall.EMPTY;
+      boolean c = true;
+      boolean d = false;
       hwalls = new ThinWall[][]{
         {c,c,c,c,c,c},
         {c,d,c,c,c,d},
@@ -91,7 +92,11 @@ public class AquariumBoard extends GenericBoard{
       }
     }
 
-    start();
+    print();
+    while(true){
+      userInput();
+      print();
+    }
     instance = null;
   }
   
@@ -104,11 +109,11 @@ public class AquariumBoard extends GenericBoard{
   }
 
   public boolean isHWallEmpty(int x, int y){
-    return (hwalls[y][x] == null) ? false : hwalls[y][x].isEMPTY();
+    return !hwalls[y][x];
   }
 
   public boolean isVWallEmpty(int x, int y){
-    return (vwalls[y][x] == null) ? false : vwalls[y][x].isEMPTY();
+    return !vwalls[y][x];
   }
 
   public boolean isValidCoordinate(int x, int y){
@@ -124,59 +129,35 @@ public class AquariumBoard extends GenericBoard{
     return false;
   }
 
-  protected void print(){
-    System.out.print(" ");
-    for(int col = 0; col < height; col++){
-      System.out.print(" " + colRuns[col].getNumFilled());
-    }
-    System.out.println(" ");
-
+  private void print(){
     for(int row = 0; row < width; row++){
-      System.out.print(" ");
-      for(ThinWall hwall : hwalls[row]){
-        String str = hwall.isEMPTY() ? " " : "-";
+      for(boolean hwall : hwalls[row]){
+        String str = (!hwall) ? " " : "-";
         System.out.print("+" + str);
       }
-      
       System.out.println("+");
 
-      System.out.print(rowRuns[row].getNumFilled());
       for(int col = 0; col < height; col++){
-        String str = vwalls[row][col].isEMPTY() ? " " : "|";
+        String str = (!vwalls[row][col]) ? " " : "|";
         System.out.print(str);
         System.out.print(board[row][col]);
       }
 
       {
-        String str = vwalls[row][height].isEMPTY() ? " " : "|";
+        String str = (!vwalls[row][col]) ? " " : "|";
         System.out.println(str);
       }
     }
     
     System.out.print(" ");
-    for(ThinWall hwall : hwalls[height - 1]){
-      String str = hwall.isEMPTY() ? " " : "-";
+    for(boolean hwall : hwalls[height - 1]){
+      String str = (!hwall) ? " " : "-";
       System.out.print("+" + str);
     }
     System.out.println("+");
   }
-
-  protected void endingMessage(){
-    System.out.println("You Solved The Aquarium!");
-  }
-  
-  protected boolean isFinished(){
-    for(int row = 0; row < board.length; row++){
-      for(int col = 0; col < board[0].length; col++){
-        if(!solvedBoard[row][col].solvedEquals(board[row][col].getCell())){
-          return false;
-        }
-      }
-    }
-    return true;
-  }
-  
-  protected void userInput(){
+    
+  private void userInput(){
     /*
       user can input coordinates in the following format
       x y empty
